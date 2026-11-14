@@ -1,0 +1,54 @@
+name: Build Blender Rust APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager "ndk;27.2.12479018"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Build Rust library
+        working-directory: blender-rust-android/rust
+        run: cargo ndk -t arm64-v8a -o ../android/app/src/main/jniLibs build --release
+
+      - name: Build Android APK
+        working-directory: blender-rust-android/android
+        run: |
+          gradle wrapper --gradle-version 8.9
+          ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-rust-apk
+          path: blender-rust-android/android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
