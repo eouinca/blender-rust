@@ -1,0 +1,11 @@
+[package]
+name = "blender_rust_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "blender_rust_core"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+jni = "0.21"
