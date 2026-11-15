@@ -23,17 +23,15 @@ jobs:
 name: Install Android SDK
 uses: android-actions/setup-android@v3
 with:
-packages: platform-tools
-with:
-packages: platform-tools
-
-      - name: Install Android NDK
+          packages: platform-tools
+     - name: Install Android NDK     
+      
         run: |
           sdkmanager "ndk;27.2.12479018"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+      uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android
 
